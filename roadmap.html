@@ -1,237 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SkillBridge — My Roadmap</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233b82f6'/><text y='23' x='6' font-size='20' font-family='Inter,Arial' font-weight='800' fill='white'>S</text></svg>"/>
-  <style>
-    .roadmap-item {
-      display:flex; gap:20px; position:relative; padding-bottom:28px;
-    }
-    .roadmap-item:last-child { padding-bottom:0; }
-    .roadmap-item::before {
-      content:''; position:absolute; left:19px; top:40px; bottom:0;
-      width:2px; background:var(--border);
-    }
-    .roadmap-item:last-child::before { display:none; }
-    .roadmap-item.done::before { background:var(--green); }
-    .roadmap-item.active::before { background:linear-gradient(to bottom, var(--accent), var(--border)); }
-
-    .rm-circle {
-      width:40px; height:40px; border-radius:50%; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:.85rem; font-weight:700; z-index:1;
-      border:2px solid var(--border); background:var(--card-2); color:var(--muted);
-      transition:all var(--trans);
-    }
-    .rm-circle.done   { background:var(--green); border-color:var(--green); color:#fff; }
-    .rm-circle.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.2); }
-    .rm-circle.locked { opacity:.5; }
-
-    .rm-card {
-      flex:1; background:var(--card); border:1px solid var(--border);
-      border-radius:var(--radius); padding:20px 24px;
-      transition:all var(--trans);
-    }
-    .rm-card:hover { border-color:var(--border-2); }
-    .rm-card.active { border-color:rgba(59,130,246,0.3); background:rgba(59,130,246,0.03); }
-    .rm-card.done   { opacity:.7; }
-
-    .rm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-    .rm-title { font-size:.95rem; font-weight:600; }
-    .rm-meta  { font-size:.78rem; color:var(--muted); margin-bottom:12px; }
-
-    .rm-resources { display:flex; flex-direction:column; gap:6px; }
-    .rm-resource {
-      display:flex; align-items:center; gap:10px;
-      padding:9px 12px; border-radius:var(--radius-sm);
-      background:var(--card-2); border:1px solid var(--border);
-      text-decoration:none; color:var(--text-2);
-      font-size:.8rem; transition:all var(--trans);
-    }
-    .rm-resource:hover { border-color:var(--accent); color:var(--text); }
-    .rm-resource-icon { font-size:1rem; }
-    .rm-resource-label { flex:1; font-weight:500; }
-    .rm-resource-time { font-size:.72rem; color:var(--muted); }
-
-    .rm-progress-row { margin-top:12px; }
-    .rm-progress-label { font-size:.72rem; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap | SkillBridge</title>
+<meta name="google-site-verification" content="PASTE_YOUR_EXISTING_CODE_HERE" />
+<link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<div class="app-layout">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <a href="index.html" class="logo">
-        <div class="logo-mark">S</div>
-        <div class="logo-text">Skill<span>Bridge</span></div>
-      </a>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <div class="nav-label">Menu</div>
-        <a href="dashboard.html" class="nav-item"><span class="nav-icon">⊞</span> Dashboard</a>
-        <a href="roadmap.html"   class="nav-item active"><span class="nav-icon">🗺️</span> My Roadmap</a>
-        <a href="ai-chat.html"   class="nav-item"><span class="nav-icon">✦</span> AI Coach</a>
-        <a href="dashboard.html" class="nav-item"><span class="nav-icon">📈</span> Progress</a>
-        <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏢</span> Jobs</a>
-      </div>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="avatar" style="background:var(--accent)">R</div>
-        <div class="sidebar-user-info">
-          <div class="sidebar-user-name">Ravi</div>
-          <div class="sidebar-user-role" id="role-label">Web Developer</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <div class="main-content">
-    <div class="topbar">
-      <div class="topbar-left">
-        <span class="topbar-title">My Learning Roadmap</span>
-      </div>
-      <div class="topbar-right">
-        <button class="btn btn-secondary btn-sm" onclick="window.location.href='ai-chat.html'">✦ Ask AI Coach</button>
-        <div class="avatar" style="background:var(--accent)">R</div>
-      </div>
-    </div>
-
-    <div class="page-content animate-fade-up">
-      <div class="page-header">
-        <h2>Your Personalised Roadmap</h2>
-        <p>Complete these in order — each skill builds on the previous one.</p>
-      </div>
-
-      <!-- Overall progress -->
-      <div class="card" style="padding:24px;margin-bottom:24px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-          <div>
-            <h3 style="margin-bottom:4px">Overall Progress</h3>
-            <p style="font-size:.85rem">You're on track — keep going! 🚀</p>
-          </div>
-          <div style="display:flex;gap:16px">
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:800;color:var(--green)" id="done-count">2</div>
-              <div style="font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Completed</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:800;color:var(--accent)" id="left-count">4</div>
-              <div style="font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Remaining</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:800;color:var(--text)" id="total-count">6</div>
-              <div style="font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Total</div>
-            </div>
-          </div>
-        </div>
-        <div class="progress-wrap" style="height:10px">
-          <div class="progress-fill" id="overall-progress" style="width:0%"></div>
-        </div>
-        <div style="font-size:.75rem;color:var(--muted);margin-top:8px;text-align:right" id="progress-pct">0% complete</div>
-      </div>
-
-      <!-- Roadmap items -->
-      <div id="roadmap-list"></div>
-    </div>
+<nav>
+  <h2>SkillBridge</h2>
+  <div>
+    <a href="../index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="onboarding.html">Onboarding</a>
+    <a href="roadmap.html">Roadmap</a>
   </div>
-</div>
+</nav>
 
-<script src="app.js"></script>
-<script>
-  const state = JSON.parse(sessionStorage.getItem('sb_state') || '{"role":"web developer","skills":["html","css"],"city":"Mumbai"}');
-  document.getElementById('role-label').textContent = state.role || 'Web Developer';
+<section class="hero">
+  <h1>Roadmap</h1>
+</section>
 
-  const SKILL_DB = {
-    'web developer':     ['html','css','javascript','git','react','typescript','nodejs','mongodb'],
-    'data analyst':      ['excel','sql','python','pandas','power bi','tableau','statistics','machine learning'],
-    'ui ux designer':    ['figma','user research','wireframing','prototyping','adobe xd','typography','sketch','illustrator'],
-    'digital marketing': ['seo','google analytics','canva','content writing','facebook ads','email marketing','google ads','social media'],
-    'project manager':   ['communication','jira','agile','scrum','excel','trello','notion','leadership'],
-    'software engineer': ['python','git','sql','javascript','nodejs','docker','aws','system design'],
-    'general':           ['html','css','javascript','git','react','python','sql','figma'],
-  };
-
-  const RESOURCES_MAP = {
-    'html':              [{icon:'📖',label:'MDN HTML Guide',url:'https://developer.mozilla.org/en-US/docs/Learn/HTML',time:'20 hrs'},{icon:'🎬',label:'HTML Crash Course — YouTube',url:'https://youtube.com/watch?v=UB1O30fR-EE',time:'1 hr'}],
-    'css':               [{icon:'📖',label:'The Odin Project — CSS',url:'https://theodinproject.com',time:'30 hrs'},{icon:'🎮',label:'CSS Grid Garden (Interactive)',url:'https://cssgridgarden.com',time:'3 hrs'}],
-    'javascript':        [{icon:'🎓',label:'freeCodeCamp JS Course',url:'https://freecodecamp.org/learn/javascript-algorithms-and-data-structures/',time:'300 hrs'},{icon:'📖',label:'javascript.info (Best Guide)',url:'https://javascript.info',time:'40 hrs'}],
-    'react':             [{icon:'📖',label:'React Official Docs',url:'https://react.dev/learn',time:'40 hrs'},{icon:'🎬',label:'React Full Course — Scrimba',url:'https://scrimba.com/learn/learnreact',time:'10 hrs'}],
-    'git':               [{icon:'🎮',label:'GitHub Skills (Interactive)',url:'https://skills.github.com',time:'5 hrs'},{icon:'📖',label:'Pro Git Book (Free)',url:'https://git-scm.com/book',time:'8 hrs'}],
-    'python':            [{icon:'🎓',label:'CS50P — Harvard (Free)',url:'https://cs50.harvard.edu/python/',time:'50 hrs'},{icon:'🎮',label:'Python on Kaggle (Free)',url:'https://kaggle.com/learn/python',time:'5 hrs'}],
-    'sql':               [{icon:'📖',label:'Mode SQL Tutorial',url:'https://mode.com/sql-tutorial/',time:'10 hrs'},{icon:'🎮',label:'SQLZoo (Interactive)',url:'https://sqlzoo.net',time:'5 hrs'}],
-    'figma':             [{icon:'📖',label:'Figma Official Learn',url:'https://figma.com/resources/learn-design/',time:'15 hrs'},{icon:'🎬',label:'Figma UI Design — YouTube',url:'https://youtube.com/watch?v=FTFaQWZBqQ8',time:'3 hrs'}],
-    'typescript':        [{icon:'📖',label:'TypeScript Handbook',url:'https://typescriptlang.org/docs/',time:'20 hrs'}],
-    'nodejs':            [{icon:'🎬',label:'Node.js Full Course — YouTube',url:'https://youtube.com/watch?v=f2EqECiTBL8',time:'8 hrs'}],
-    'docker':            [{icon:'🎮',label:'Play With Docker (Free)',url:'https://labs.play-with-docker.com/',time:'8 hrs'}],
-    'aws':               [{icon:'🎓',label:'AWS Skill Builder (Free)',url:'https://skillbuilder.aws/',time:'20 hrs'}],
-  };
-
-  const roleKey    = (state.role||'general').toLowerCase();
-  const demand     = SKILL_DB[roleKey] || SKILL_DB['general'];
-  const userSkills = (state.skills||[]).map(s => s.toLowerCase());
-  const matched    = demand.filter(s => userSkills.some(u => u.includes(s)||s.includes(u)));
-  const missing    = demand.filter(s => !userSkills.some(u => u.includes(s)||s.includes(u)));
-
-  const allItems = [
-    ...matched.map(s => ({ skill: s, status: 'done' })),
-    ...missing.map((s, i) => ({ skill: s, status: i === 0 ? 'active' : 'locked' })),
-  ];
-
-  const doneCount  = matched.length;
-  const totalCount = allItems.length;
-  const pct        = Math.round((doneCount / totalCount) * 100);
-
-  document.getElementById('done-count').textContent  = doneCount;
-  document.getElementById('left-count').textContent  = missing.length;
-  document.getElementById('total-count').textContent = totalCount;
-  setTimeout(() => {
-    document.getElementById('overall-progress').style.width = pct + '%';
-    document.getElementById('progress-pct').textContent = pct + '% complete';
-  }, 300);
-
-  const list = document.getElementById('roadmap-list');
-  allItems.forEach(({ skill, status }, idx) => {
-    const res = RESOURCES_MAP[skill] || [{ icon:'🔗', label:`Learn ${skill[0].toUpperCase()+skill.slice(1)} — freeCodeCamp`, url:`https://freecodecamp.org/news/search/?query=${encodeURIComponent(skill)}`, time:'Varies' }];
-    const circleClass = status;
-    const circleContent = status === 'done' ? '✓' : idx + 1;
-
-    list.innerHTML += `
-    <div class="roadmap-item ${status}">
-      <div class="rm-circle ${circleClass}">${circleContent}</div>
-      <div class="rm-card ${status}">
-        <div class="rm-header">
-          <div class="rm-title">${skill[0].toUpperCase()+skill.slice(1)}</div>
-          ${status === 'done'   ? '<span class="badge badge-green">✓ Completed</span>' : ''}
-          ${status === 'active' ? '<span class="badge badge-blue">▶ In Progress</span>' : ''}
-          ${status === 'locked' ? '<span class="badge" style="background:var(--card-2);color:var(--muted);border:1px solid var(--border)">🔒 Locked</span>' : ''}
-        </div>
-        <div class="rm-meta">Step ${idx+1} of ${allItems.length} · ${status === 'done' ? 'Completed' : res[0].time + ' estimated'}</div>
-        ${status !== 'locked' ? `
-        <div class="rm-resources">
-          ${res.map(r => `
-          <a class="rm-resource" href="${r.url}" target="_blank" rel="noopener">
-            <span class="rm-resource-icon">${r.icon}</span>
-            <span class="rm-resource-label">${r.label}</span>
-            <span class="rm-resource-time">${r.time}</span>
-          </a>`).join('')}
-        </div>` : '<p style="font-size:.8rem;color:var(--muted)">Complete the previous step to unlock this one.</p>'}
-        ${status === 'active' ? `
-        <div class="rm-progress-row">
-          <div class="rm-progress-label"><span>Your progress</span><span>65%</span></div>
-          <div class="progress-wrap"><div class="progress-fill" style="width:65%"></div></div>
-        </div>` : ''}
-        ${status === 'active' ? `<div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn btn-primary btn-sm" onclick="window.open('${res[0].url}','_blank')">Continue Learning →</button>
-          <button class="btn btn-secondary btn-sm" onclick="window.location.href='ai-chat.html?q=Help+me+learn+${encodeURIComponent(skill)}'">✦ Ask AI</button>
-        </div>` : ''}
-      </div>
-    </div>`;
-  });
-</script>
 </body>
 </html>
