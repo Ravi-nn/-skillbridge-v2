@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkillBridge — AI Coach</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233b82f6'/><text y='23' x='6' font-size='20' font-family='Inter,Arial' font-weight='800' fill='white'>S</text></svg>"/>
+  <style>
+    .chat-layout { display:flex; height:100vh; overflow:hidden; }
+    .chat-sidebar { width:240px; flex-shrink:0; background:var(--card); border-right:1px solid var(--border); display:flex; flex-direction:column; }
+    .chat-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+    /* Chat history sidebar */
+    .chat-history { padding:12px; flex:1; overflow-y:auto; }
+    .chat-hist-item {
+      padding:10px 12px; border-radius:var(--radius-sm);
+      font-size:.82rem; color:var(--text-2); cursor:pointer;
+      transition:all var(--trans); margin-bottom:4px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .chat-hist-item:hover  { background:var(--card-2); color:var(--text); }
+    .chat-hist-item.active { background:var(--accent-s); color:var(--accent); }
+
+    /* Messages area */
+    .chat-messages {
+      flex:1; overflow-y:auto; padding:28px;
+      display:flex; flex-direction:column; gap:16px;
+    }
+    .msg { display:flex; gap:12px; max-width:80%; animation:slideIn .3s ease; }
+    .msg.user { align-self:flex-end; flex-direction:row-reverse; }
+    .msg-avatar {
+      width:34px; height:34px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.8rem; font-weight:700;
+    }
+    .msg-avatar.ai   { background:var(--accent-s); color:var(--accent); }
+    .msg-avatar.user { background:var(--card-2); color:var(--text-2); }
+    .msg-bubble {
+      padding:12px 16px; border-radius:var(--radius);
+      font-size:.875rem; line-height:1.65;
+    }
+    .msg.ai   .msg-bubble { background:var(--card); border:1px solid var(--border); color:var(--text-2); border-bottom-left-radius:4px; }
+    .msg.user .msg-bubble { background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
+    .msg-time { font-size:.65rem; color:var(--muted); margin-top:5px; text-align:right; }
+    .msg.ai .msg-time { text-align:left; }
+
+    /* Typing indicator */
+    .typing-indicator { display:flex; gap:5px; align-items:center; padding:14px 16px; }
+    .typing-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:var(--muted); animation:pulse 1.2s ease infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay:.2s; }
+    .typing-dot:nth-child(3) { animation-delay:.4s; }
+
+    /* Suggestions */
+    .chat-suggestions {
+      padding:0 28px 12px;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .suggestion-chip {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:999px; padding:7px 14px;
+      font-size:.78rem; font-weight:500; color:var(--text-2);
+      cursor:pointer; transition:all var(--trans);
+    }
+    .suggestion-chip:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-s); }
+
+    /* Input bar */
+    .chat-input-bar {
+      padding:16px 28px; border-top:1px solid var(--border);
+      background:var(--bg);
+    }
+    .chat-input-wrap {
+      display:flex; gap:10px; align-items:center;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius); padding:10px 14px;
+      transition:border-color var(--trans);
+    }
+    .chat-input-wrap:focus-within { border-color:var(--accent); }
+    .chat-input {
+      flex:1; background:none; border:none; outline:none;
+      color:var(--text); font-family:'Inter',sans-serif; font-size:.9rem;
+      resize:none; max-height:120px;
+    }
+    .chat-input::placeholder { color:var(--muted); }
+    .send-btn {
+      width:36px; height:36px; border-radius:var(--radius-sm);
+      background:var(--accent); border:none; color:#fff;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      font-size:1rem; transition:all var(--trans); flex-shrink:0;
+    }
+    .send-btn:hover { background:var(--accent-h); transform:scale(1.05); }
+    .send-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+    /* Guides sidebar section */
+    .guides-section { padding:12px; border-top:1px solid var(--border); }
+    .guides-label { font-size:.65rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; padding:0 4px; }
+    .guide-item {
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:var(--radius-sm);
+      font-size:.78rem; color:var(--muted); cursor:pointer;
+      transition:all var(--trans);
+    }
+    .guide-item:hover { background:var(--card-2); color:var(--text-2); }
+    .guide-icon { font-size:.9rem; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Main sidebar (nav) -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="logo">
+        <div class="logo-mark">S</div>
+        <div class="logo-text">Skill<span>Bridge</span></div>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-label">Menu</div>
+        <a href="dashboard.html" class="nav-item"><span class="nav-icon">⊞</span> Dashboard</a>
+        <a href="roadmap.html"   class="nav-item"><span class="nav-icon">🗺️</span> My Roadmap</a>
+        <a href="ai-chat.html"   class="nav-item active"><span class="nav-icon">✦</span> AI Coach</a>
+        <a href="dashboard.html" class="nav-item"><span class="nav-icon">📈</span> Progress</a>
+        <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏢</span> Jobs</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar" style="background:var(--accent)">R</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Ravi</div>
+          <div class="sidebar-user-role">Web Developer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="chat-layout" style="margin-left:0">
+
+      <!-- Chat history sidebar -->
+      <div class="chat-sidebar">
+        <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick="newChat()">+ New Chat</button>
+        </div>
+        <div class="chat-history">
+          <div class="chat-hist-item active">What should I learn first?</div>
+          <div class="chat-hist-item">How to write a resume for dev jobs</div>
+          <div class="chat-hist-item">React vs Vue — which to learn?</div>
+          <div class="chat-hist-item">How to prepare for interviews</div>
+        </div>
+        <!-- AI Guides -->
+        <div class="guides-section">
+          <div class="guides-label">AI Guides</div>
+          <div class="guide-item" onclick="askGuide('resume')"><span class="guide-icon">📄</span> Resume Writing</div>
+          <div class="guide-item" onclick="askGuide('interview')"><span class="guide-icon">🎤</span> Interview Prep</div>
+          <div class="guide-item" onclick="askGuide('salary')"><span class="guide-icon">💰</span> Salary Negotiation</div>
+          <div class="guide-item" onclick="askGuide('linkedin')"><span class="guide-icon">🔗</span> LinkedIn Profile</div>
+          <div class="guide-item" onclick="askGuide('portfolio')"><span class="guide-icon">🖥️</span> Portfolio Tips</div>
+        </div>
+      </div>
+
+      <!-- Main chat area -->
+      <div class="chat-main">
+        <!-- Topbar -->
+        <div class="topbar">
+          <div class="topbar-left">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite"></div>
+            <span class="topbar-title">✦ SkillBridge AI Coach</span>
+          </div>
+          <div class="topbar-right">
+            <span class="badge badge-green">Online</span>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chat-messages">
+          <!-- Welcome message -->
+          <div class="msg ai">
+            <div class="msg-avatar ai">✦</div>
+            <div>
+              <div class="msg-bubble">
+                Hi Ravi! 👋 I'm your SkillBridge AI Career Coach.<br/><br/>
+                I can help you with:
+                <ul style="margin:8px 0 0 16px;display:flex;flex-direction:column;gap:4px">
+                  <li>What skills to learn next based on your gap</li>
+                  <li>Resume writing for tech jobs in India</li>
+                  <li>Interview preparation strategies</li>
+                  <li>Salary negotiation advice</li>
+                  <li>LinkedIn and portfolio tips</li>
+                </ul>
+                <br/>What would you like help with today?
+              </div>
+              <div class="msg-time">Just now</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestion chips -->
+        <div class="chat-suggestions" id="chat-suggestions">
+          <div class="suggestion-chip" onclick="sendSuggestion('What skill should I learn first?')">What skill should I learn first?</div>
+          <div class="suggestion-chip" onclick="sendSuggestion('How do I write a good resume?')">How to write a good resume?</div>
+          <div class="suggestion-chip" onclick="sendSuggestion('How do I prepare for tech interviews?')">Interview prep tips</div>
+          <div class="suggestion-chip" onclick="sendSuggestion('How do I negotiate salary?')">Salary negotiation</div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-bar">
+          <div class="chat-input-wrap">
+            <textarea class="chat-input" id="chat-input" placeholder="Ask your AI career coach anything…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">↑</button>
+          </div>
+          <p style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:center">AI responses are for guidance only. Always verify with current job market data.</p>
+        </div>
+      </div><!-- end chat-main -->
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const state = JSON.parse(sessionStorage.getItem('sb_state') || '{"role":"web developer","skills":["html","css"],"city":"Mumbai"}');
+
+  const AI_RESPONSES = {
+    default: [
+      `Based on your profile as a **${state.role}** in **${state.city}**, here's my advice:\n\nStart with the skill that appears most frequently in job listings for your role. For ${state.role}s in India, that's typically JavaScript/React. Focus on one skill at a time and build a project to showcase it.\n\nWould you like a specific learning plan for any skill?`,
+      `Great question! As a ${state.role} targeting the ${state.city} market, you should focus on building projects that demonstrate your skills. Employers in India value practical experience over certificates.\n\nI recommend:\n1. Build 2-3 portfolio projects\n2. Contribute to open source\n3. Write about what you learn on LinkedIn\n\nShall I help you plan your first project?`,
+    ],
+    resume: `**Resume Tips for ${state.role} Jobs in India:**\n\n1. **Keep it 1 page** — recruiters spend 6 seconds on average\n2. **Lead with skills** — put your tech stack at the top\n3. **Quantify everything** — "Built X that reduced Y by Z%"\n4. **Use ATS keywords** — copy terms directly from job descriptions\n5. **GitHub link is mandatory** — no GitHub = no credibility\n\nWant me to review specific sections of your resume?`,
+    interview: `**Interview Prep for ${state.role} in India:**\n\n**Technical Round:**\n• Practice DSA on LeetCode (easy + medium)\n• Revise core concepts of your tech stack\n• Build 2 projects you can explain deeply\n\n**HR Round:**\n• Prepare STAR format answers\n• Research the company before every interview\n• Know your salary expectations clearly\n\n**Top companies asking these rounds:**\nInfosys, TCS, Wipro, Startups (different expectations)\n\nWant mock interview questions for ${state.role}?`,
+    salary: `**Salary Negotiation for ${state.role} in ${state.city}:**\n\n**Market rates (2025):**\n• Fresher: ₹3-6 LPA\n• 1-2 years: ₹6-12 LPA\n• 3-5 years: ₹12-25 LPA\n\n**Tips:**\n1. Never give the first number — ask "What's the budget for this role?"\n2. Negotiate on total comp (base + bonus + ESOP)\n3. Always have a competing offer or be willing to walk away\n4. Research on Glassdoor and AmbitionBox first\n\nWould you like help preparing for a specific negotiation?`,
+    linkedin: `**LinkedIn Profile Tips for ${state.role}:**\n\n1. **Photo** — professional, smiling, good lighting\n2. **Headline** — "Aspiring ${state.role} | HTML • CSS • React" not just "Student"\n3. **About** — tell your story in 3 sentences: who you are, what you do, what you want\n4. **Featured** — pin your best project or GitHub\n5. **Post weekly** — share what you're learning. Recruiters will find you.\n\n💡 Pro tip: Connect with 5 people in your target companies every week and comment thoughtfully on their posts.`,
+    portfolio: `**Portfolio Tips for ${state.role}:**\n\n**3 projects > 10 mediocre ones**\n\nEach project should show:\n✅ Real problem it solves\n✅ Tech stack used\n✅ Your specific contribution\n✅ Live demo link\n✅ Clean GitHub README\n\n**Best portfolio ideas for ${state.role}:**\n• SkillBridge itself is a great portfolio project!\n• A job application tracker\n• A local business website\n• An open source contribution\n\nShall I help you outline a specific project?`,
+  };
+
+  function getTime() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function addMessage(text, type='ai') {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = `msg ${type}`;
+
+    const formatted = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br/>');
+    div.innerHTML = type === 'ai'
+      ? `<div class="msg-avatar ai">✦</div><div><div class="msg-bubble">${formatted}</div><div class="msg-time">${getTime()}</div></div>`
+      : `<div class="msg-avatar user">R</div><div><div class="msg-bubble">${text}</div><div class="msg-time">${getTime()}</div></div>`;
+
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping() {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg ai'; div.id = 'typing-msg';
+    div.innerHTML = `<div class="msg-avatar ai">✦</div><div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-msg');
+    if (t) t.remove();
+  }
+
+  function getAIResponse(msg) {
+    const lower = msg.toLowerCase();
+    if (lower.includes('resume') || lower.includes('cv'))      return AI_RESPONSES.resume;
+    if (lower.includes('interview'))                            return AI_RESPONSES.interview;
+    if (lower.includes('salary') || lower.includes('negotiat'))return AI_RESPONSES.salary;
+    if (lower.includes('linkedin'))                             return AI_RESPONSES.linkedin;
+    if (lower.includes('portfolio') || lower.includes('project'))return AI_RESPONSES.portfolio;
+    return AI_RESPONSES.default[Math.floor(Math.random()*AI_RESPONSES.default.length)];
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text  = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'user');
+    input.value = ''; input.style.height = 'auto';
+    document.getElementById('send-btn').disabled = true;
+    document.getElementById('chat-suggestions').style.display = 'none';
+
+    showTyping();
+    await new Promise(r => setTimeout(r, 1200 + Math.random()*800));
+    removeTyping();
+    addMessage(getAIResponse(text), 'ai');
+    document.getElementById('send-btn').disabled = false;
+  }
+
+  function sendSuggestion(text) {
+    document.getElementById('chat-input').value = text;
+    sendMessage();
+  }
+
+  function askGuide(type) {
+    const msgs = {
+      resume:'Can you help me write a better resume for tech jobs?',
+      interview:'How should I prepare for tech interviews?',
+      salary:'How do I negotiate my salary?',
+      linkedin:'How do I optimize my LinkedIn profile?',
+      portfolio:'What portfolio projects should I build?',
+    };
+    sendSuggestion(msgs[type] || 'Help me with my career');
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function newChat() {
+    document.getElementById('chat-messages').innerHTML = '';
+    addMessage(`Hi again! 👋 Ready for another question. What would you like help with?`);
+    document.getElementById('chat-suggestions').style.display = 'flex';
+  }
+
+  // Check for pre-filled question from dashboard
+  const urlQ = new URLSearchParams(window.location.search).get('q');
+  if (urlQ) setTimeout(() => sendSuggestion(decodeURIComponent(urlQ)), 800);
+</script>
+</body>
+</html>
