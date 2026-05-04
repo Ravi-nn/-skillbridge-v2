@@ -1,28 +1,27 @@
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: Arial;
   background: #0a0a0a;
-  color: #fff;
+  color: white;
 }
 nav {
   display: flex;
   justify-content: space-between;
-  padding: 15px 30px;
-  background: rgba(0,0,0,0.8);
+  padding: 15px;
+  background: black;
   border-bottom: 1px solid gold;
 }
 nav a {
   color: gold;
-  margin-left: 20px;
-  text-decoration: none;
+  margin-left: 15px;
+  cursor: pointer;
 }
-.hero {
+section {
+  padding: 40px;
   text-align: center;
-  padding: 100px 20px;
 }
-h1 {
-  font-size: 3em;
-  background: linear-gradient(gold, white);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.hidden { display:none; }
+input, button {
+  padding:10px;
+  margin:10px;
 }

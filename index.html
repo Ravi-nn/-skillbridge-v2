@@ -3,25 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillBridge | Elevate Your Future</title>
-<meta name="google-site-verification" content="PASTE_YOUR_EXISTING_CODE_HERE" />
-<meta name="description" content="Luxury skill development platform with personalized roadmaps.">
-<link rel="stylesheet" href="css/style.css">
+
+<title>SkillBridge | AI Career Roadmaps</title>
+<meta name="description" content="Build your career with AI-powered skill roadmaps, dashboards, and premium growth tools.">
+<meta name="keywords" content="skills, roadmap, career, AI, learning">
+
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
+
 </head>
 <body>
+
 <nav>
   <h2>SkillBridge</h2>
   <div>
-    <a href="index.html">Home</a>
-    <a href="pages/dashboard.html">Dashboard</a>
-    <a href="pages/onboarding.html">Onboarding</a>
-    <a href="pages/roadmap.html">Roadmap</a>
+    <a onclick="showPage('home')">Home</a>
+    <a onclick="showPage('dashboard')">Dashboard</a>
+    <a onclick="showPage('roadmap')">Roadmap</a>
   </div>
 </nav>
 
-<section class="hero">
+<section id="home">
   <h1>Build Skills. Build Wealth.</h1>
-  <p>Premium roadmap system to accelerate your career.</p>
+  <p>AI-powered roadmap to accelerate your career.</p>
+</section>
+
+<section id="dashboard" class="hidden">
+  <h1>Your Dashboard</h1>
+  <div id="stats"></div>
+</section>
+
+<section id="roadmap" class="hidden">
+  <h1>AI Roadmap Generator</h1>
+  <input id="skill" placeholder="Enter skill (e.g. Web Dev)">
+  <button onclick="generateRoadmap()">Generate</button>
+  <ul id="roadmapList"></ul>
 </section>
 
 </body>
