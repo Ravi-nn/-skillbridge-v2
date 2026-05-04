@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ravi-nn.github.io/skillbridge-v2/sitemap.xml
+Sitemap: https://ravi-nn.github.io/-skillbridge-v2/sitemap.xml
